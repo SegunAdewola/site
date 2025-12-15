@@ -40,6 +40,31 @@ const PORTFOLIO_DATA = {
     experience: [
         {
             id: "exp-1",
+            title: "Data Structure and Algorithms TA",
+            company: "Khoury College of Computer Science",
+            companyUrl: "https://www.khoury.northeastern.edu/",
+            period: "Jan 2026 - Present",
+            location: "Seattle, WA, USA",
+            icon: "⚙️",
+            highlights: [
+                "Selected to support the <span class=\"highlight\">Data Structures and Algorithms</span> instruction in Spring 2026 through office hours, grading, and student mentoring.",
+            ]
+        },
+        {
+            id: "exp-2",
+            title: "Discrete Math TA",
+            company: "Khoury College of Computer Science",
+            companyUrl: "https://www.khoury.northeastern.edu/",
+            period: "Sep 2025 - Dec 2025",
+            location: "Seattle, WA, USA",
+            icon: "🔢",
+            highlights: [
+                "Supported the <span class=\"highlight\">Discrete Math</span> instruction in Fall 2025 through lectures, office hours, grading, and student mentoring.",
+                "Taught classes in Numerical Representation, Set Theory and Proof Theory",
+            ]
+        },
+        {
+            id: "exp-3",
             title: "Volunteer Python Instructor",
             company: "Apps and Scripts (Coding Bootcamp)",
             companyUrl: "#",
@@ -54,7 +79,7 @@ const PORTFOLIO_DATA = {
             ]
         },
         {
-            id: "exp-2",
+            id: "exp-4",
             title: "Data Scientist, FX Pricing",
             company: "Sendapp, Flutterwave",
             companyUrl: "https://flutterwave.com",
@@ -70,7 +95,7 @@ const PORTFOLIO_DATA = {
             ]
         },
         {
-            id: "exp-3",
+            id: "exp-5",
             title: "Sales Development Representative",
             company: "Flutterwave",
             companyUrl: "https://flutterwave.com",
@@ -84,10 +109,10 @@ const PORTFOLIO_DATA = {
             ]
         },
         {
-            id: "exp-4",
+            id: "exp-6",
             title: "Project Management Intern",
             company: "Mar & Mor Engineering Services",
-            companyUrl: "#",
+            companyUrl: "https://marandmor.com/",
             period: "May 2021 - Dec 2021",
             location: "Lagos, Nigeria",
             icon: "🏗️",
