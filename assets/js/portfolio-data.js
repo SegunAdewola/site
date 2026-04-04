@@ -4,14 +4,15 @@
 const PORTFOLIO_DATA = {
     personal: {
         name: "Oluwasegun Adewola",
-        title: "Software Engineer & Data Scientist",
+        title: "Software Engineer",
         location: "Seattle, WA",
         email: "segunadewolai@gmail.com",
         phone: "425-652-2931",
         website: "segunadewola.com",
         linkedin: "https://linkedin.com/in/segunadewola",
         github: "https://github.com/SegunAdewola",
-        bio: "Passionate Software Engineer and Data Scientist with expertise in AI/ML, FX pricing algorithms, and full-stack development. Currently pursuing MS in Computer Science at Northeastern University with a perfect 4.0 GPA. People's Choice Winner of Qualcomm & Microsoft Edge AI Hackathon, experienced in building scalable fintech solutions that generated $150K+ revenue increases. Co-architect of innovative educational platforms and AI gaming experiences."
+        // bio: "Passionate Software Engineer and Data Scientist with expertise in AI/ML, FX pricing algorithms, and full-stack development. Currently pursuing MS in Computer Science at Northeastern University with a perfect 4.0 GPA. People's Choice Winner of Qualcomm & Microsoft Edge AI Hackathon, experienced in building scalable fintech solutions that generated $150K+ revenue increases. Co-architect of innovative educational platforms and AI gaming experiences."
+        bio: "I am Graduate student and Software Enginer with expeirence with Distributed Systems, Product Development and AI/ML. I am currently studying Computer Science and Northeastern University. I am currently building HuskyPool and RemitTrack. I find Distributed Databases, Atonomous Testing, UI/UX and Foundation Software interesting as well."
     },
     
     education: [
@@ -19,7 +20,7 @@ const PORTFOLIO_DATA = {
             id: "edu-1",
             school: "Northeastern University",
             degree: "MS Computer Science",
-            period: "Sep 2024 - May 2027",
+            period: "Sep 2024 - Dec 2027",
             location: "Seattle, USA",
             gpa: "4.0",
             highlights: [
@@ -47,7 +48,7 @@ const PORTFOLIO_DATA = {
             location: "Seattle, WA, USA",
             icon: "⚙️",
             highlights: [
-                "Selected to support the <span class=\"highlight\">Data Structures and Algorithms</span> instruction in Spring 2026 through office hours, grading, and student mentoring.",
+                "Selected to support the <span class=\"highlight\">Data Structures and Algorithms</span> instruction in Spring 2026 in the C programming language through office hours, grading, and student mentoring.",
             ]
         },
         {
@@ -63,21 +64,21 @@ const PORTFOLIO_DATA = {
                 "Taught classes in Numerical Representation, Set Theory and Proof Theory",
             ]
         },
-        {
-            id: "exp-3",
-            title: "Volunteer Python Instructor",
-            company: "Apps and Scripts (Coding Bootcamp)",
-            companyUrl: "#",
-            period: "Jul 2024 - Aug 2024",
-            location: "Ibadan, Nigeria",
-            icon: "👨‍🏫",
-            highlights: [
-                "Designed <span class=\"highlight\">8-week Python workshop</span> for kids aged 8-15",
-                "Achieved <span class=\"highlight\">90% positive feedback rate</span>",
-                "Increased final assessment average by <span class=\"highlight\">18% YoY</span>",
-                "Developed interactive coding challenges"
-            ]
-        },
+        // {
+        //     id: "exp-3",
+        //     title: "Volunteer Python Instructor",
+        //     company: "Apps and Scripts (Coding Bootcamp)",
+        //     companyUrl: "#",
+        //     period: "Jul 2024 - Aug 2024",
+        //     location: "Ibadan, Nigeria",
+        //     icon: "👨‍🏫",
+        //     highlights: [
+        //         "Designed <span class=\"highlight\">8-week Python workshop</span> for kids aged 8-15",
+        //         "Achieved <span class=\"highlight\">90% positive feedback rate</span>",
+        //         "Increased final assessment average by <span class=\"highlight\">18% YoY</span>",
+        //         "Developed interactive coding challenges"
+        //     ]
+        // },
         {
             id: "exp-4",
             title: "Data Scientist, FX Pricing",
@@ -94,74 +95,40 @@ const PORTFOLIO_DATA = {
                 "Designed Power BI dashboards, increasing team productivity by <span class=\"highlight\">22%</span>"
             ]
         },
-        {
-            id: "exp-5",
-            title: "Sales Development Representative",
-            company: "Flutterwave",
-            companyUrl: "https://flutterwave.com",
-            period: "Aug 2022 - Dec 2022",
-            location: "Lagos, Nigeria",
-            icon: "📈",
-            highlights: [
-                "Drove <span class=\"highlight\">14% increase in conversion rates</span>",
-                "Automated lead tracking using Python scripts",
-                "Increased sales team productivity by <span class=\"highlight\">30%</span>"
-            ]
-        },
-        {
-            id: "exp-6",
-            title: "Project Management Intern",
-            company: "Mar & Mor Engineering Services",
-            companyUrl: "https://marandmor.com/",
-            period: "May 2021 - Dec 2021",
-            location: "Lagos, Nigeria",
-            icon: "🏗️",
-            highlights: [
-                "Led design, testing and implementation of complex lighting and power circuits",
-                "Managed company HQ and <span class=\"highlight\">6 high-priority projects</span> concurrently",
-                "Optimized HVAC system shop drawings for <span class=\"highlight\">ARK project</span> by 2.3%",
-                "Contributed to World's largest indoor arena project"
-            ]
-        }
+        // {
+        //     id: "exp-5",
+        //     title: "Sales Development Representative",
+        //     company: "Flutterwave",
+        //     companyUrl: "https://flutterwave.com",
+        //     period: "Aug 2022 - Dec 2022",
+        //     location: "Lagos, Nigeria",
+        //     icon: "📈",
+        //     highlights: [
+        //         "Drove <span class=\"highlight\">14% increase in conversion rates</span>",
+        //         "Automated lead tracking using Python scripts",
+        //         "Increased sales team productivity by <span class=\"highlight\">30%</span>"
+        //     ]
+        // },
+        // {
+        //     id: "exp-6",
+        //     title: "Project Management Intern",
+        //     company: "Mar & Mor Engineering Services",
+        //     companyUrl: "https://marandmor.com/",
+        //     period: "May 2021 - Dec 2021",
+        //     location: "Lagos, Nigeria",
+        //     icon: "🏗️",
+        //     highlights: [
+        //         "Led design, testing and implementation of complex lighting and power circuits",
+        //         "Managed company HQ and <span class=\"highlight\">6 high-priority projects</span> concurrently",
+        //         "Optimized HVAC system shop drawings for <span class=\"highlight\">ARK project</span> by 2.3%",
+        //         "Contributed to World's largest indoor arena project"
+        //     ]
+        // }
     ],
     
     projects: [
         {
             id: "proj-1",
-            title: "Astronoma",
-            icon: "🚀",
-            period: "Jun 2025 - Ongoing",
-            description: "AI Space Education Platform - Full-stack educational platform with 3D universe exploration",
-            technologies: ["Python", "React", "Three.js", "FastAPI", "Llama 4 API"],
-            achievements: [
-                "Co-architected platform enabling <span class=\"highlight\">real-time 3D universe exploration</span>",
-                "Llama 4-powered AI assistant for immersive space learning across <span class=\"highlight\">11 languages</span>",
-                "Engineered WebSocket communication and AI integration pipeline",
-                "Built procedural content generation system reducing load time by <span class=\"highlight\">60%</span>"
-            ],
-            links: [
-                { type: "github", url: "https://github.com/tamirkifle/astronoma", label: "GitHub" }
-            ]
-        },
-        {
-            id: "proj-2",
-            title: "LLMConquest 4",
-            icon: "🎮",
-            period: "Mar 2025",
-            description: "Realistic Game AI Prototype - Cross-platform PyQt app merging AI with gaming",
-            technologies: ["Python", "Ollama", "Mistral 7B", "Whisper", "PyQt"],
-            achievements: [
-                "<span class=\"highlight\">People's Choice Winner</span> - Qualcomm & Microsoft Hackathon",
-                "Led 5-person team to develop narrative-driven AI opponent",
-                "Integrated speech-to-text for seamless voice-based gameplay",
-                "Selected for <span class=\"highlight\">RPGMaster development</span> by Qualcomm and Microsoft"
-            ],
-            links: [
-                { type: "github", url: "https://github.com/aqn96/llm-conquestfour", label: "GitHub" }
-            ]
-        },
-        {
-            id: "proj-3",
             title: "Remit-Track",
             icon: "💱",
             period: "Jan 2025 - Present",
@@ -179,6 +146,40 @@ const PORTFOLIO_DATA = {
             ]
         },
         {
+            id: "proj-2",
+            title: "Astronoma",
+            icon: "🚀",
+            period: "Jun 2025 - Ongoing",
+            description: "AI Space Education Platform - Full-stack educational platform with 3D universe exploration",
+            technologies: ["Python", "React", "Three.js", "FastAPI", "Llama 4 API"],
+            achievements: [
+                "Co-architected platform enabling <span class=\"highlight\">real-time 3D universe exploration</span>",
+                "Llama 4-powered AI assistant for immersive space learning across <span class=\"highlight\">11 languages</span>",
+                "Engineered WebSocket communication and AI integration pipeline",
+                "Built procedural content generation system reducing load time by <span class=\"highlight\">60%</span>"
+            ],
+            links: [
+                { type: "github", url: "https://github.com/tamirkifle/astronoma", label: "GitHub" }
+            ]
+        },
+        {
+            id: "proj-3",
+            title: "LLMConquest 4",
+            icon: "🎮",
+            period: "Mar 2025",
+            description: "Realistic Game AI Prototype - Cross-platform PyQt app merging AI with gaming",
+            technologies: ["Python", "Ollama", "Mistral 7B", "Whisper", "PyQt"],
+            achievements: [
+                "<span class=\"highlight\">People's Choice Winner</span> - Qualcomm & Microsoft Hackathon",
+                "Led 5-person team to develop narrative-driven AI opponent",
+                "Integrated speech-to-text for seamless voice-based gameplay",
+                "Selected for <span class=\"highlight\">RPGMaster development</span> by Qualcomm and Microsoft"
+            ],
+            links: [
+                { type: "github", url: "https://github.com/aqn96/llm-conquestfour", label: "GitHub" }
+            ]
+        },
+        {
             id: "proj-4",
             title: "Brawlers",
             icon: "🥊",
@@ -192,7 +193,8 @@ const PORTFOLIO_DATA = {
                 "Game controller support and collision detection"
             ],
             links: [
-                { type: "github", url: "https://github.com/SegunAdewola/Brawlers", label: "GitHub" }
+                { type: "github", url: "https://github.com/SegunAdewola/Brawlers", label: "GitHub" },
+                { type: "demo", url: "https://www.youtube.com/watch?v=Z0DYOHhNvm0", label: "Video Demo" }
             ]
         }
     ],
