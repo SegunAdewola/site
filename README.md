@@ -1,51 +1,17 @@
-# Segun Adewola - Portfolio Website
+# segunadewola.com
 
-A professional, modern portfolio website showcasing my experience as a Software Engineer and Data Scientist.
+A zero-framework personal portfolio deployed on GitHub Pages. No build step, no bundler, no dependencies. Plain HTML, one CSS file, one JS file.
 
-## 🌟 Features
+Live at [segunadewola.com](https://segunadewola.com).
 
-- **Custom Domain**: Professional web presence
-- **Responsive Design**: Works perfectly on all devices
-- **Dark/Light Theme**: Automatic system preference detection
-- **Contact Form**: Functional contact form with validation
-- **Performance Optimized**: Fast loading and SEO optimized
-- **Easy Maintenance**: Update content without touching code
+## Structure
 
-## 🚀 Tech Stack
+- Root: core pages (`index.html`, `projects.html`, `contact.html`)
+- `/projects`: architecture and design pages for individual projects
+- `/blog`: individual blog post pages (blog is not yet live)
+- `/assets`: resume PDF, favicons, and the shared JS injector
+- `/docs`: internal documentation for managing the site
 
-- **Frontend**: HTML5, CSS3, Vanilla JavaScript
-- **Hosting**: GitHub Pages (FREE)
-- **Domain**: Custom domain with SSL
-- **Forms**: FormSubmit for contact handling
+## Managing content
 
-## 📁 Project Structure
-
-```
-portfolio-website/
-├── index.html              # Main website
-├── assets/
-│   ├── css/               # Stylesheets
-│   ├── js/                # JavaScript files
-│   ├── documents/         # Resume and documents
-│   └── images/            # Images and icons
-├── docs/                  # Documentation
-└── scripts/               # Setup and utility scripts
-```
-
-## 📝 Updating Content
-
-All content is stored in `/assets/js/portfolio-data.js`. Simply edit this file to update:
-- Work experience
-- Projects
-- Skills and technologies
-- Personal information
-
-See `docs/CONTENT-UPDATE.md` for detailed instructions.
-
-## 📄 License
-
-MIT License - feel free to use this template for your own portfolio!
-
----
-
-**Built with ❤️ by Segun Adewola**
+See `docs/SITE-GUIDE.md` for step-by-step instructions on adding projects, writing blog posts, and keeping the sitemap and RSS feed up to date.
