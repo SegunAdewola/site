@@ -1,0 +1,329 @@
+/* ==========================================================================
+   Design Tokens (Sleek Deep Midnight Blue Palette)
+   ========================================================================== */
+:root {
+  --color-bg: #ffffff;
+  --color-surface: #f9f9f9;
+  --color-border: #e8e8e8;
+  --color-text-main: #4a4a4a;
+  --color-text-dark: #111111;
+  --color-accent: #226db8;          /* Deep Midnight Blue Links */
+  --color-highlight-bg: #f2f2f2;    
+  --color-highlight-text: #111111;  
+  --font-global: 'Inter', sans-serif; 
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0d1117;
+    --color-surface: #161b22;
+    --color-border: #21262d;
+    --color-text-main: #c9d1d9;
+    --color-text-dark: #f0f6fc;
+    --color-accent: #6495c5;        /* Midnight Marine Blue Links */
+    --color-highlight-bg: #21262d;  
+    --color-highlight-text: #f0f6fc;
+  }
+}
+
+/* ==========================================================================
+   Base Layout & Weight Standardizations (Zero Bold Rule)
+   ========================================================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Universal reset ensuring no structural variations across pages */
+*:not([class*="token"]) {
+  font-weight: 400 !important;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-main);
+  font-family: var(--font-global);
+  font-size: 16px;
+  line-height: 1.6;
+  
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   Precision Component Highlight (Replaces Old <strong> Tags)
+   ========================================================================== */
+strong, .highlight-token {
+  background-color: var(--color-highlight-bg);
+  color: var(--color-highlight-text);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.95em;
+  display: inline-block;
+  line-height: 1.2;
+}
+
+/* ==========================================================================
+   Flat Header Setup (Fixed Pixel Scaling Engine)
+   ========================================================================== */
+.site-header {
+  position: sticky;
+  top: 0;
+  background-color: var(--color-bg);
+  z-index: 100;
+  border-bottom: 1px solid var(--color-border);
+  height: 60px;                  /* Fixed structural container height */
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 auto;
+  max-width: 800px;
+  padding: 0 2rem;               /* Removed vertical padding to prevent scale shifting */
+  height: 100%;                  /* Locks layout perfectly to the 60px header parent */
+}
+
+.nav-logo {
+  color: var(--color-text-dark);
+  font-size: 15px;               /* Scaled to match nav links exactly */
+  letter-spacing: -0.5px;
+  text-decoration: none;
+  font-weight: 500 !important;
+  line-height: 60px;             /* Line-height matching container height forces dead center */
+  height: 60px;
+}
+
+.nav-logo span {
+  color: var(--color-accent);
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  height: 60px;
+}
+
+.nav-links a {
+  color: var(--color-text-main);
+  font-size: 15px;               /* Absolute, unshakeable pixel size */
+  text-decoration: none;
+  transition: color 0.2s ease;
+  line-height: 60px;             /* Forces absolute text centring at 60px */
+  height: 60px;
+  display: inline-block;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--color-accent);
+}
+
+.resume-link {
+  color: var(--color-accent) !important;
+}
+
+/* ==========================================================================
+   Content Grid & Headings
+   ========================================================================== */
+.main-content {
+  margin: 0 auto;
+  max-width: 800px;
+  padding: 2.5rem 2rem 4rem 2rem;
+  width: 100%;
+  flex-grow: 1;
+}
+
+.page-section {
+  margin-bottom: 2.5rem;
+  scroll-margin-top: 5rem;
+}
+
+h1, h2, h3, h4 {
+  color: var(--color-text-dark);
+  letter-spacing: -0.5px;
+}
+
+h1 { font-size: 2.25rem; margin-bottom: 0.75rem; }
+h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--color-text-main); margin-bottom: 1.25rem; }
+
+.project-title {
+  color: var(--color-accent) !important;
+  font-size: 1.3rem;
+  margin-bottom: 0.4rem;
+}
+
+h3 { font-size: 1.3rem; margin-bottom: 0.4rem; color: var(--color-text-dark); }
+
+p { margin-bottom: 1rem; max-width: 680px; }
+ul { margin-bottom: 1rem; padding-left: 1.25rem; }
+li { margin-bottom: 0.35rem; }
+
+/* ==========================================================================
+   Project Cards Layout Array
+   ========================================================================== */
+.item-card { margin-bottom: 2rem; }
+.item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.25rem; }
+.item-meta { color: var(--color-text-main); font-size: 0.9rem; opacity: 0.7; }
+.project-links { display: flex; gap: 1.25rem; margin: 0.25rem 0 0.75rem 0; }
+.item-tags { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
+
+.tag {
+  background-color: var(--color-surface);
+  border-radius: 4px;
+  color: var(--color-text-dark);
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--color-border);
+}
+
+.text-link {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+.text-link:hover { text-decoration: underline; }
+
+/* ==========================================================================
+   Technical Components Layouts
+   ========================================================================== */
+.doc-vertical-nav {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.system-diagram {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+  margin: 1.25rem 0;
+}
+
+.diagram-node {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  flex: 1;
+  text-align: center;
+}
+
+.active-node { border-color: var(--color-accent); }
+.node-title { font-size: 0.9rem; color: var(--color-text-dark); margin-bottom: 0.15rem; }
+.node-meta { font-size: 0.75rem; color: var(--color-text-main); opacity: 0.8; }
+.diagram-arrow { font-size: 1.25rem; color: var(--color-text-main); opacity: 0.5; }
+
+/* ==========================================================================
+   Syntax Highlighting Base Containers
+   ========================================================================== */
+pre[class*="language-"] {
+  background-color: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  margin: 1.25rem 0 !important;
+  padding: 1rem !important;
+  border-radius: 6px !important;
+}
+code[class*="language-"] {
+  font-family: monospace !important;
+  font-size: 0.9rem !important;
+  text-shadow: none !important;
+}
+
+/* ==========================================================================
+   Footer Component Shell
+   ========================================================================== */
+.site-footer {
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+  width: 100%;
+}
+
+.footer-container { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin: 0 auto; 
+  max-width: 800px; 
+  padding: 1.5rem 2rem; 
+  font-size: 14px;              /* Enforced fixed absolute pixel value */
+  color: var(--color-text-main); 
+  opacity: 0.7; 
+}
+
+.footer-links { 
+  display: flex; 
+  gap: 1.25rem; 
+  list-style: none; 
+}
+
+.footer-links a { 
+  color: var(--color-text-main); 
+  text-decoration: none; 
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover { 
+  color: var(--color-accent); 
+}
+
+/* ==========================================================================
+   Mobile Optimization Layout (Perfect Single Row Fixed Alignment)
+   ========================================================================== */
+@media (max-width: 650px) {
+  .nav-container { 
+    flex-direction: row;        
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1rem; 
+  }
+  
+  .nav-links { 
+    gap: 0.75rem; 
+    flex-wrap: wrap; 
+    justify-content: flex-end;
+  }
+
+  .nav-logo {
+    font-size: 17px;            /* Controlled mobile pixel down-scale */
+  }
+
+  .nav-links a {
+    font-size: 14px;            /* Controlled mobile pixel down-scale */
+  }
+
+  .main-content { 
+    padding: 2rem 1rem; 
+  }
+
+  .item-header {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .footer-container { 
+    flex-direction: row; 
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1rem;
+    font-size: 13px;
+  }
+  
+  .footer-links {
+    justify-content: flex-end;
+  }
+
+  .system-diagram { flex-direction: column; padding: 1.25rem; }
+  .diagram-arrow { transform: rotate(90deg); margin: 0.15rem 0; }
+  .diagram-node { width: 100%; }
+}
