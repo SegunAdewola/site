@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Doc: Key-Value Engine | Segun Adewola</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+  <header id="global-header" class="site-header"></header>
+
+  <main class="main-content">
+    <article class="page-section">
+      <a href="../projects.html" class="text-link">&larr; Back to Projects</a>
+      <h1 style="margin-top: 1rem;">System Architecture Design: Key-Value Engine</h1>
+      <p style="margin-bottom: 1.5rem; opacity: 0.8;">Author: Segun Adewola | Status: Production Active</p>
+
+      <ul class="doc-vertical-nav">
+        <li><a href="#abstract" class="text-link">1. System Abstract</a></li>
+        <li><a href="#goals" class="text-link">2. Core Goals</a></li>
+        <li><a href="#architecture" class="text-link">3. Architecture Diagram</a></li>
+        <li><a href="#data-flow" class="text-link">4. Low-Level Data Flow</a></li>
+        <li><a href="#tradeoffs" class="text-link">5. Engineering Trade-offs</a></li>
+      </ul>
+
+      <section id="abstract" class="page-section" style="margin-bottom: 2rem;">
+        <h3>1. System Abstract</h3>
+        <p>This document details the architectural reasoning and technical specifications for an embedded, high-throughput key-value engine. The system leverages single-writer append-only disk mechanics paired with runtime hash tables to guarantee structural stability under load operations.</p>
+      </section>
+
+      <section id="goals" class="page-section" style="margin-bottom: 2rem;">
+        <h3>2. Core Goals</h3>
+        <p>The principal objective is establishing highly predictable low-level write parameters without risking volatile heap fragmentation over long operational runs.</p>
+      </section>
+
+      <section id="architecture" class="page-section" style="margin-bottom: 2rem;">
+        <h3>3. Architecture Diagram</h3>
+        <p>The diagram below displays how the in-memory entry array points to custom block indexes on hard disks.</p>
+        
+        <div class="system-diagram">
+          <div class="diagram-node">
+            <div class="node-title">Application Layer</div>
+            <div class="node-meta">Client API Call</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node active-node">
+            <div class="node-title">In-Memory Index</div>
+            <div class="node-meta">Active Hash Map</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="node-title">Storage Disk</div>
+            <div class="node-meta">Append-Only Log</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="data-flow" class="page-section" style="margin-bottom: 2rem;">
+        <h3>4. Low-Level Data Flow</h3>
+        <p>When a call execution triggers, the system follows this linear execution path:</p>
+        <ul>
+          <li>Lock concurrency layers to isolate active transaction blocks.</li>
+          <li>Append records directly to structural write logs.</li>
+          <li>Refresh local memory tables to reflect the newest block locations.</li>
+        </ul>
+      </section>
+
+      <section id="tradeoffs" class="page-section" style="margin-bottom: 2rem;">
+        <h3>5. Engineering Trade-offs</h3>
+        <p>By opting for file sequences rather than typical tree indexing layouts, we prioritized peak storage velocity. However, this design demands automatic background compacting procedures to clear abandoned historical entries.</p>
+      </section>
+    </article>
+  </main>
+
+  <footer id="global-footer" class="site-footer"></footer>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
