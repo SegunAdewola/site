@@ -5,8 +5,5 @@ Twitter: @segunadewola
 Location: Seattle, WA, USA
 
 /* SITE */
-Last update: 2025/01/08
-Language: English
-Doctype: HTML5
-IDE: VS Code
-Technologies: HTML5, CSS3, JavaScript, GitHub Pages
+Standards: HTML5, CSS3
+Components: Pure semantic architecture, zero-framework layout array
