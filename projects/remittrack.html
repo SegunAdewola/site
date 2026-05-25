@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RemitTrack: Architecture &amp; Design | Segun Adewola</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+  <header id="global-header" class="site-header"></header>
+
+  <main class="main-content">
+    <article>
+      <a href="../projects.html" class="text-link">&larr; Back to Projects</a>
+      <h1 style="margin-top: 1rem;">RemitTrack</h1>
+      <p style="opacity: 0.7; font-size: 0.95rem; margin-bottom: 0.25rem;">Exchange Rate Comparison Platform &bull; Jun. 2025 &ndash; Ongoing</p>
+      <p style="margin-bottom: 1.75rem;">
+        <a href="https://www.remittrack.com" class="text-link" target="_blank" rel="noopener">remittrack.com</a>
+        &nbsp;&bull;&nbsp;
+        <a href="https://github.com/SegunAdewola" class="text-link" target="_blank" rel="noopener">GitHub</a>
+      </p>
+
+      <ul class="doc-vertical-nav">
+        <li><a href="#overview" class="text-link">1. Overview</a></li>
+        <li><a href="#architecture" class="text-link">2. System Architecture</a></li>
+        <li><a href="#data-pipeline" class="text-link">3. Data Pipeline</a></li>
+        <li><a href="#features" class="text-link">4. Key Features</a></li>
+        <li><a href="#tradeoffs" class="text-link">5. Engineering Trade-offs</a></li>
+      </ul>
+
+      <section id="overview" class="page-section">
+        <h3>1. Overview</h3>
+        <p>RemitTrack is a real-time exchange rate comparison platform built for the African diaspora. Sending money home is something millions of people do every month, and the difference in rates across providers can be significant. RemitTrack pulls live rates from 15+ Money Transfer Providers, normalises them into a consistent format, and surfaces them in one place so users can see where they actually get the best deal.</p>
+        <p>Beyond the consumer-facing side, the aggregated rate data serves as a market intelligence and arbitrage risk signal for MTP operators. The platform also has an LLM-powered chat interface that lets users ask questions about rates in plain English, built as an accessibility feature for users who find data tables harder to parse.</p>
+      </section>
+
+      <section id="architecture" class="page-section">
+        <h3>2. System Architecture</h3>
+        <p>The platform is a fully Go data platform deployed on AWS. The backend handles all scraping, normalisation, storage, and serving. The frontend is a TypeScript and React application that reads from the API.</p>
+
+        <div class="system-diagram">
+          <div class="diagram-node">
+            <div class="node-title">ETL Scrapers</div>
+            <div class="node-meta">Go goroutines</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node active-node">
+            <div class="node-title">Kinesis Stream</div>
+            <div class="node-meta">AWS Kinesis</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="node-title">Consumer</div>
+            <div class="node-meta">Normalise + Persist</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="node-title">PostgreSQL</div>
+            <div class="node-meta">AWS RDS</div>
+          </div>
+        </div>
+
+        <div class="system-diagram">
+          <div class="diagram-node">
+            <div class="node-title">React Frontend</div>
+            <div class="node-meta">TypeScript / React</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node active-node">
+            <div class="node-title">REST API</div>
+            <div class="node-meta">Go HTTP Server</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="node-title">ElastiCache</div>
+            <div class="node-meta">Redis Cache</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="node-title">PostgreSQL</div>
+            <div class="node-meta">AWS RDS</div>
+          </div>
+        </div>
+
+        <p>Infrastructure runs on AWS EC2 with RDS for PostgreSQL, ElastiCache for Redis, and Kinesis for the streaming ingestion layer.</p>
+      </section>
+
+      <section id="data-pipeline" class="page-section">
+        <h3>3. Data Pipeline</h3>
+        <p>The core engineering challenge in RemitTrack is getting fresh, accurate rate data from providers that do not offer a public API. The ETL pipeline handles this in three stages:</p>
+        <ul>
+          <li><strong>Extract:</strong> goroutine-based concurrent scrapers run on a schedule, one per provider, pulling rates in parallel. This keeps the total scrape time close to the slowest single provider rather than the sum of all of them.</li>
+          <li><strong>Transform:</strong> each scraper outputs a normalised rate record with a consistent schema regardless of how the source structures its data. Currency pair, mid-rate, provider timestamp, and scrape timestamp are all captured.</li>
+          <li><strong>Load:</strong> normalised records are published to a Kinesis stream. A downstream consumer reads from the stream, applies any final validation, and writes to PostgreSQL. Kinesis decouples the scraping layer from the storage layer, so a slow write to RDS does not back up the scrapers.</li>
+        </ul>
+        <p>ElastiCache sits in front of the API layer and caches the latest rate per provider per currency pair. Most read traffic hits the cache. The database is the source of truth for historical data and alert evaluation.</p>
+      </section>
+
+      <section id="features" class="page-section">
+        <h3>4. Key Features</h3>
+        <ul>
+          <li><strong>Rate comparison table:</strong> live rates across 15+ providers, updated on every scrape cycle.</li>
+          <li><strong>Price-target alerts:</strong> users set a target rate for a currency pair and get notified when a provider hits it.</li>
+          <li><strong>LLM chat interface:</strong> a natural-language interface that lets users query the rate data conversationally. Built as an accessibility feature for users who find tables harder to navigate.</li>
+          <li><strong>Market intelligence view:</strong> aggregated rate data surfaces spread patterns and arbitrage signals across providers.</li>
+        </ul>
+      </section>
+
+      <section id="tradeoffs" class="page-section">
+        <h3>5. Engineering Trade-offs</h3>
+        <ul>
+          <li><strong>Kinesis over Kafka:</strong> MSK has a minimum cost of two brokers regardless of load. At this scale, one Kinesis shard handles the throughput at a fraction of the cost. The trade-off is a 7-day maximum retention window vs Kafka's configurable retention, which is acceptable for this use case.</li>
+          <li><strong>PostgreSQL over a document store:</strong> rate data is relational and time-series friendly. PostgreSQL's window functions handle spread analysis and trend queries cleanly. A document store would have made these queries significantly more awkward.</li>
+          <li><strong>Go modulith over microservices:</strong> splitting the scraping layer, API layer, and alert worker into separate services would add deployment and networking overhead that is not justified at this stage. The modulith keeps operational costs low while the codebase stays structured enough to split later if needed.</li>
+        </ul>
+      </section>
+
+    </article>
+  </main>
+
+  <footer id="global-footer" class="site-footer"></footer>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
