@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Understanding Pointer Mechanics | Segun Adewola</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="https://cloudflare.com">
+</head>
+<body>
+
+  <header id="global-header" class="site-header"></header>
+
+  <main class="main-content">
+    <article class="page-section">
+      <a href="../blog.html" class="text-link">&larr; Back to Blog</a>
+      <h1 style="margin-top: 1rem; margin-bottom: 0.25rem;">Understanding Pointer Mechanics</h1>
+      <p style="opacity: 0.7; font-size: 0.95rem; margin-bottom: 1.5rem;">Published June 04, 2026 &bull; 5 min read</p>
+
+      <p>An incremental review of underlying memory safety parameters and standard machine architecture interactions. Understanding pointers isn't just about syntax; it's about understanding how your code translates directly into CPU instructions and hardware addresses.</p>
+
+      <h3>The Reality of Memory Addresses</h3>
+      <p>To the operating system, memory is just a giant linear array of byte boxes, each with its own sequential index number.</p>
+
+      <!-- Tagged language-cpp class activates syntax highlighting -->
+      <pre><code class="language-cpp">// Dereferencing an explicit data boundary block
+#include &lt;iostream&gt;
+
+int main() {
+    int hardware_register = 42;
+    int* memory_ptr = &amp;hardware_register;
+    return 0;
+}</code></pre>
+    </article>
+  </main>
+
+  <footer id="global-footer" class="site-footer"></footer>
+  
+  <script src="https://cloudflare.com"></script>
+  <script src="https://cloudflare.com"></script>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
