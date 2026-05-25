@@ -1,6 +1,6 @@
 # segunadewola.com
 
-A zero-framework personal portfolio deployed on GitHub Pages. No build step, no bundler, no dependencies. Plain HTML, one CSS file, one JS file.
+My personal portfolio.
 
 Live at [segunadewola.com](https://segunadewola.com).
 
