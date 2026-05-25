@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects | Segun Adewola</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header id="global-header" class="site-header"></header>
+
+  <main class="main-content">
+    <section class="page-section">
+      <h1>Projects</h1>
+      <p>Things I have built, am building, or have thought too hard about.</p>
+
+      <div class="item-card">
+        <div class="item-header">
+          <h3><a href="https://www.remittrack.com" class="text-link" target="_blank" rel="noopener">RemitTrack</a></h3>
+          <span class="item-meta">Jun. 2025 &dash; Ongoing</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/SegunAdewola/remit-track" class="text-link" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.remittrack.com" class="text-link" target="_blank" rel="noopener">App</a>
+          <a href="projects/remittrack.html" class="text-link">Architecture &amp; Design</a>
+        </div>
+        <p>A real-time exchange rate comparison platform for the African diaspora. Covers 15+ Money Transfer Providers, sends price-target alerts, and has an LLM-powered chat interface for natural-language rate queries as an accessibility feature. The aggregated rate data also serves as a market intelligence and arbitrage risk signal for MTP operators.</p>
+        <div class="item-tags">
+          <span class="tag">Go</span>
+          <span class="tag">TypeScript</span>
+          <span class="tag">React</span>
+          <span class="tag">PostgreSQL</span>
+          <span class="tag">Kinesis</span>
+          <span class="tag">ElastiCache</span>
+          <span class="tag">AWS</span>
+        </div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-header">
+          <h3><a href="https://www.neupool.com" class="text-link" target="_blank" rel="noopener">NeuPool</a></h3>
+          <span class="item-meta">Jan. 2026 &dash; Ongoing</span>
+        </div>
+        <div class="project-links">
+          <a href="https://www.github.com/SegunAdewola/husky-pool" class="text-link" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.neupool.com" class="text-link" target="_blank" rel="noopener">App</a>
+          <a href="projects/neupool.html" class="text-link">Architecture &amp; Design</a>
+        </div>
+        <p>A carpooling coordination platform for universities and large organisations. Currently piloting at Northeastern University. Features RBAC group management, WebSocket-based in-app chat, push notifications, and gas cost splitting via Stripe. Go's native concurrency handles 1,000+ simultaneous matching requests using Google OR-Tools for optimal ride assignment.</p>
+        <div class="item-tags">
+          <span class="tag">Go</span>
+          <span class="tag">TypeScript</span>
+          <span class="tag">React</span>
+          <span class="tag">PostgreSQL</span>
+          <span class="tag">SQS</span>
+          <span class="tag">ElastiCache</span>
+          <span class="tag">AWS</span>
+        </div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-header">
+          <h3><a href="https://github.com/SegunAdewola/distributed-chat-app" class="text-link" target="_blank" rel="noopener">Distributed Chat App</a></h3>
+          <span class="item-meta">Jan. 2026 &dash; Apr. 2026</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/SegunAdewola/distributed-chat-app" class="text-link" target="_blank" rel="noopener">GitHub</a>
+          <a href="projects/distributed-chat.html" class="text-link">Architecture &amp; Design</a>
+        </div>
+        <p>A distributed chat system with 4 Spring Boot WebSocket servers behind a load balancer. RabbitMQ handles message routing, with dedicated consumers decoupling delivery from persistence, Redis for caching, and Cassandra for storage, all on self-managed AWS EC2. Benchmarked at 13K messages per second with dead letter queues, exponential backoff, and circuit breaker patterns.</p>
+        <div class="item-tags">
+          <span class="tag">Java</span>
+          <span class="tag">Spring Boot</span>
+          <span class="tag">RabbitMQ</span>
+          <span class="tag">Cassandra</span>
+          <span class="tag">Redis</span>
+          <span class="tag">AWS EC2</span>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <footer id="global-footer" class="site-footer"></footer>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
