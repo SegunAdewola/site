@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Distributed Chat App: Architecture &amp; Design | Segun Adewola</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+  <header id="global-header" class="site-header"></header>
+
+  <main class="main-content">
+    <article>
+      <a href="../projects.html" class="text-link">&larr; Back to Projects</a>
+      <h1 style="margin-top: 1rem;">Distributed Chat App</h1>
+      <p style="opacity: 0.7; font-size: 0.95rem; margin-bottom: 0.25rem;">Distributed Messaging System &bull; Jan. 2026 &ndash; Apr. 2026</p>
+      <p style="margin-bottom: 1.75rem;">
+        <a href="https://github.com/SegunAdewola/distributed-chat-app" class="text-link" target="_blank" rel="noopener">GitHub</a>
+      </p>
+
+      <ul class="doc-vertical-nav">
+        <li><a href="#overview" class="text-link">1. Overview</a></li>
+        <li><a href="#architecture" class="text-link">2. System Architecture</a></li>
+        <li><a href="#message-flow" class="text-link">3. Message Flow</a></li>
+        <li><a href="#reliability" class="text-link">4. Reliability Patterns</a></li>
+        <li><a href="#tradeoffs" class="text-link">5. Engineering Trade-offs</a></li>
+      </ul>
+
+      <section id="overview" class="page-section">
+        <h3>1. Overview</h3>
+        <p>This project is a distributed chat system built to explore the engineering challenges behind high-throughput real-time messaging at scale. The goal was to build something that could handle serious load, handle failures gracefully, and separate the concerns of message delivery and message persistence cleanly.</p>
+        <p>The system benchmarks at 13,000 messages per second under load testing, with production-grade fault tolerance patterns throughout.</p>
+      </section>
+
+      <section id="architecture" class="page-section">
+        <h3>2. System Architecture</h3>
+        <p>Four Spring Boot WebSocket servers sit behind an Application Load Balancer. RabbitMQ handles all message routing between servers, ensuring a message sent on server A reaches a recipient connected to server B. Dedicated consumers read from RabbitMQ and write to Cassandra for persistence, completely decoupled from the delivery path. Redis handles caching for active session data and recent messages.</p>
+
+        <div class="system-diagram">
+          <div class="diagram-node">
+            <div class="node-title">Client</div>
+            <div class="node-meta">WebSocket connection</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node active-node">
+            <div class="node-title">Load Balancer</div>
+            <div class="node-meta">AWS ALB</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="node-title">Chat Servers (x4)</div>
+            <div class="node-meta">Spring Boot WebSocket</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="node-title">RabbitMQ</div>
+            <div class="node-meta">Message routing</div>
+          </div>
+        </div>
+
+        <div class="system-diagram">
+          <div class="diagram-node">
+            <div class="node-title">RabbitMQ</div>
+            <div class="node-meta">Two queues: delivery + persist</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node active-node">
+            <div class="node-title">Persistence Consumer</div>
+            <div class="node-meta">Dedicated worker</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="node-title">Cassandra</div>
+            <div class="node-meta">Message storage</div>
+          </div>
+        </div>
+
+        <p>All servers run on self-managed AWS EC2 instances. The infrastructure is intentionally self-managed rather than using managed services, to expose the operational realities of running distributed systems without abstractions.</p>
+      </section>
+
+      <section id="message-flow" class="page-section">
+        <h3>3. Message Flow</h3>
+        <p>When a user sends a message, the following sequence happens:</p>
+        <ul>
+          <li>The client sends the message over its WebSocket connection to whichever chat server it is connected to.</li>
+          <li>The server publishes the message to RabbitMQ on two separate queues: one for delivery, one for persistence. These are independent so a slow write to Cassandra cannot block delivery to the recipient.</li>
+          <li>The delivery consumer routes the message to the target server (or broadcasts if it is a group message). The target server pushes it over the recipient's WebSocket connection.</li>
+          <li>The persistence consumer writes the message to Cassandra asynchronously.</li>
+          <li>Redis caches active session state and recent message history so reconnecting clients can fetch recent messages without hitting Cassandra on every load.</li>
+        </ul>
+
+        <div class="system-diagram">
+          <div class="diagram-node">
+            <div class="node-title">Send Message</div>
+            <div class="node-meta">Over WebSocket</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node active-node">
+            <div class="node-title">Publish to RabbitMQ</div>
+            <div class="node-meta">Delivery + Persist queues</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="node-title">Deliver to Recipient</div>
+            <div class="node-meta">Target server WebSocket</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="reliability" class="page-section">
+        <h3>4. Reliability Patterns</h3>
+        <ul>
+          <li><strong>Dead letter queues:</strong> messages that fail processing after a configurable number of retries are moved to a dead letter queue for inspection rather than dropped silently.</li>
+          <li><strong>Exponential backoff:</strong> transient failures on the consumer side retry with increasing delays to avoid hammering a recovering downstream system.</li>
+          <li><strong>Circuit breaker:</strong> if Cassandra or Redis becomes unavailable, the circuit breaker trips and prevents repeated failed calls from accumulating, giving the system time to recover without cascading the failure.</li>
+          <li><strong>Message persistence decoupling:</strong> because delivery and persistence are separate consumers on separate queues, a Cassandra outage does not interrupt message delivery. Messages queue up in the persistence queue until Cassandra recovers.</li>
+        </ul>
+      </section>
+
+      <section id="tradeoffs" class="page-section">
+        <h3>5. Engineering Trade-offs</h3>
+        <ul>
+          <li><strong>Cassandra over PostgreSQL:</strong> chat message storage is an append-heavy workload with high read volume for recent history. Cassandra's wide-column model with time-based partitioning handles this pattern well and scales horizontally without the write bottlenecks that come from PostgreSQL at high insert rates.</li>
+          <li><strong>RabbitMQ over Kafka:</strong> the messaging patterns here are point-to-point routing between servers, not a durable event log with multiple independent consumers. RabbitMQ's exchange and queue model fits this exactly. Kafka would have added complexity without a clear benefit for this use case.</li>
+          <li><strong>Self-managed EC2 over managed services:</strong> this was a deliberate choice to learn the operational layer. Running your own servers forces you to understand what managed services are actually abstracting. ECS or EKS would have been more practical in production.</li>
+          <li><strong>Four servers:</strong> enough to demonstrate load balancing and cross-server message routing without the cost of running a larger cluster. The architecture scales horizontally by adding more servers behind the ALB.</li>
+        </ul>
+      </section>
+
+    </article>
+  </main>
+
+  <footer id="global-footer" class="site-footer"></footer>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
