@@ -1,5 +1,0 @@
-Contact: mailto:segunadewolai@gmail.com
-Contact: https://linkedin.com/in/segunadewola
-Expires: 2025-12-31T23:59:59.000Z
-Preferred-Languages: en
-Canonical: https://segunadewola.com/security.txt
