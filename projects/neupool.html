@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuPool: Architecture &amp; Design | Segun Adewola</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+  <header id="global-header" class="site-header"></header>
+
+  <main class="main-content">
+    <article>
+      <a href="../projects.html" class="text-link">&larr; Back to Projects</a>
+      <h1 style="margin-top: 1rem;">NeuPool</h1>
+      <p style="opacity: 0.7; font-size: 0.95rem; margin-bottom: 0.25rem;">Carpool Coordination Platform &bull; Jan. 2026 &ndash; Ongoing</p>
+      <p style="margin-bottom: 1.75rem;">
+        <a href="https://www.neupool.com" class="text-link" target="_blank" rel="noopener">neupool.com</a>
+        &nbsp;&bull;&nbsp;
+        <a href="https://github.com/SegunAdewola" class="text-link" target="_blank" rel="noopener">GitHub</a>
+      </p>
+
+      <ul class="doc-vertical-nav">
+        <li><a href="#overview" class="text-link">1. Overview</a></li>
+        <li><a href="#architecture" class="text-link">2. System Architecture</a></li>
+        <li><a href="#matching" class="text-link">3. Ride Matching</a></li>
+        <li><a href="#features" class="text-link">4. Key Features</a></li>
+        <li><a href="#tradeoffs" class="text-link">5. Engineering Trade-offs</a></li>
+      </ul>
+
+      <section id="overview" class="page-section">
+        <h3>1. Overview</h3>
+        <p>NeuPool is a carpooling coordination platform for universities and large organisations. The idea came out of seeing how much friction there is around organising shared rides to events, whether that is a game, a conference, or a campus commute. Most solutions are either too informal (a group chat) or too consumer-focused (Uber) to work well for recurring, community-driven carpooling.</p>
+        <p>NeuPool gives groups the tools to organise rides properly: role-based group management, a built-in chat, push notifications, and automated gas cost splitting through Stripe. It is currently piloting at Northeastern University, with a wider release targeting Fall 2026.</p>
+      </section>
+
+      <section id="architecture" class="page-section">
+        <h3>2. System Architecture</h3>
+        <p>NeuPool is a Go modulith deployed on AWS. Running it as a single deployable unit keeps infrastructure costs low while the product is still in pilot. The codebase is structured internally so that individual modules (matching, chat, payments, notifications) can be extracted into separate services if the load justifies it.</p>
+
+        <div class="system-diagram">
+          <div class="diagram-node">
+            <div class="node-title">React Frontend</div>
+            <div class="node-meta">TypeScript / React</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node active-node">
+            <div class="node-title">Go Modulith</div>
+            <div class="node-meta">REST API + WebSocket</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="node-title">Amazon SQS</div>
+            <div class="node-meta">Event Queue</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="node-title">Workers</div>
+            <div class="node-meta">Notifications / Payments</div>
+          </div>
+        </div>
+
+        <div class="system-diagram">
+          <div class="diagram-node">
+            <div class="node-title">Go Modulith</div>
+            <div class="node-meta">Application Layer</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node active-node">
+            <div class="node-title">ElastiCache</div>
+            <div class="node-meta">Redis / Session Cache</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="node-title">RDS</div>
+            <div class="node-meta">PostgreSQL</div>
+          </div>
+        </div>
+
+        <p>The backend runs on EC2, with RDS for PostgreSQL as the primary database, ElastiCache for session and group state caching, and Amazon SQS for decoupling event processing from the request path.</p>
+      </section>
+
+      <section id="matching" class="page-section">
+        <h3>3. Ride Matching</h3>
+        <p>Ride matching is the core computational challenge. When a match request comes in, the system needs to find the optimal assignment of riders to drivers given pickup locations, route overlap, seat capacity, and timing constraints.</p>
+        <p>NeuPool uses Google OR-Tools for this, which frames the assignment as a vehicle routing problem and solves it with a constraint satisfaction approach. Go's native concurrency handles 1,000+ simultaneous matching requests by running each match job in its own goroutine, so requests do not queue behind each other.</p>
+
+        <div class="system-diagram">
+          <div class="diagram-node">
+            <div class="node-title">Match Request</div>
+            <div class="node-meta">User submits ride</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node active-node">
+            <div class="node-title">OR-Tools Solver</div>
+            <div class="node-meta">Vehicle routing</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="node-title">Match Result</div>
+            <div class="node-meta">Driver + riders assigned</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="node-title">SQS Event</div>
+            <div class="node-meta">Notify all parties</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="page-section">
+        <h3>4. Key Features</h3>
+        <ul>
+          <li><strong>RBAC group management:</strong> organisations create groups with role-based access. Admins manage members, set event details, and configure carpool rules. Members see only what is relevant to them.</li>
+          <li><strong>WebSocket-based in-app chat:</strong> real-time chat within carpool groups, built on persistent WebSocket connections managed by the Go backend.</li>
+          <li><strong>Push notifications:</strong> match confirmations, ride reminders, and chat notifications sent through the notification worker.</li>
+          <li><strong>Gas cost splitting via Stripe:</strong> once a ride is completed, the platform calculates each rider's share of the gas cost and initiates the payment split through Stripe.</li>
+          <li><strong>Optimal ride matching:</strong> Google OR-Tools assigns riders to drivers to minimise total route distance while respecting seat capacity and timing constraints.</li>
+        </ul>
+      </section>
+
+      <section id="tradeoffs" class="page-section">
+        <h3>5. Engineering Trade-offs</h3>
+        <ul>
+          <li><strong>Modulith over microservices:</strong> at pilot scale, a modulith avoids the networking, deployment, and observability overhead that microservices introduce. The internal module boundaries make future extraction straightforward without committing to the operational cost prematurely.</li>
+          <li><strong>SQS over Kafka:</strong> NeuPool's event patterns are simple: a match fires a notification, a payment completes and triggers a receipt. There is no need for event replay or multiple independent consumers reading the same log. SQS is cheaper, simpler, and honest about the actual requirements.</li>
+          <li><strong>OR-Tools over a custom algorithm:</strong> vehicle routing is a well-studied NP-hard problem. OR-Tools provides a production-quality solver maintained by Google with strong constraint handling. Writing a custom heuristic would have taken significantly longer and likely produced worse results.</li>
+          <li><strong>PostgreSQL for everything:</strong> rider locations, group membership, ride history, payment records. The relational model fits all of these cleanly. A hybrid approach with a separate spatial or document store would have added complexity without a clear benefit at this scale.</li>
+        </ul>
+      </section>
+
+    </article>
+  </main>
+
+  <footer id="global-footer" class="site-footer"></footer>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
