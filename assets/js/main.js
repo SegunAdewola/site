@@ -1,4 +1,9 @@
 document.addEventListener("DOMContentLoaded", function() {
+  // Inject font from a single place so all pages stay in sync
+  const fontLink = document.createElement("link");
+  fontLink.rel = "stylesheet";
+  fontLink.href = "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard-std/dist/web/variable/pretendardStdVariable.css";
+  document.head.appendChild(fontLink);
   const headerElement = document.getElementById("global-header");
   const footerElement = document.getElementById("global-footer");
 

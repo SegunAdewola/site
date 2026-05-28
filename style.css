@@ -10,7 +10,7 @@
   --color-accent: #226db8;          /* Deep Midnight Blue Links */
   --color-highlight-bg: #f2f2f2;    
   --color-highlight-text: #111111;  
-  --font-global: 'Inter', sans-serif; 
+  --font-global: 'PretendardStd Variable', sans-serif; 
 }
 
 @media (prefers-color-scheme: dark) {
