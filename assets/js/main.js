@@ -39,7 +39,8 @@ document.addEventListener("DOMContentLoaded", function() {
       <div class="footer-container">
         <p>&copy; ${new Date().getFullYear()} Oluwasegun Adewola.</p>
         <ul class="footer-links">
-          <li><a href="${prefix}feed.xml" target="_blank">RSS Feed</a></li>
+          <!--<li><a href="${prefix}feed.xml" target="_blank">RSS Feed</a></li>-->
+          <li><a href="https://www.bible.com/bible/114/PHP.4.13.NKJV" target="_blank">I can do all things through Christ who strengthens me.</a></li>
         </ul>
       </div>
     `;
