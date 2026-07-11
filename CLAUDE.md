@@ -50,6 +50,7 @@ Avoid:
 
 - Do not install npm packages or introduce a build step
 - Do not add JavaScript frameworks or libraries
+- Do not delete commented out sections
 - Do not modify `CNAME`
 - Do not add `_config.yml` (this would trigger Jekyll on GitHub Pages)
 - Do not remove the `id="global-header"` or `id="global-footer"` attributes from any page
