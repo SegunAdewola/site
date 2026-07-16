@@ -35,7 +35,7 @@
       <section id="overview" class="page-section">
         <h3>1. Overview</h3>
         <p>RemitTrack is a real-time exchange rate comparison platform for the African diaspora. The core problem is simple: if you send money home regularly, the difference in rates between providers adds up over time, and finding the best rate means visiting each provider separately. RemitTrack pulls live rates from 15+ Money Transfer Providers, normalises them into a consistent format, and surfaces them in one place.</p>
-        <p>The platform serves two audiences. Consumers use it to find the best rate before sending. Money Transfer Providers (MTPs) use the aggregated rate data as a market intelligence and arbitrage risk signal across the corridor. There is also an LLM-powered chat interface for users who find data tables harder to navigate.</p>
+        <p>The platform serves two audiences. Consumers use it to find the best rate before sending. Money Transfer Providers (MTPs) use the aggregated rate data as a market intelligence and arbitrage risk signal across their corridor offerings. There is also an LLM-powered chat interface for users who find data tables harder to navigate.</p>
         <p>The architecture is split into clean, decoupled tiers: a Next.js frontend served from CloudFront edge nodes, a Go modulith on a single EC2 host, a serverless Lambda extraction cluster, and an agentic pipeline running on ephemeral GitHub Actions runners that keeps the scrapers healthy without manual intervention.</p>
       </section>
 
@@ -70,7 +70,7 @@ flowchart TD
         Cache["RateCache\nsync.Map or ElastiCache"]
     end
 
-    subgraph Pipe["Agentic Pipeline\nGitHub Actions Runners"]
+    subgraph Pipe["Agentic Pipeline GitHub Actions Runners"]
         AG["Multi-Agent Core\nLangGraph + ChromaDB RAG"]
         Guard["AST Safety Gate\nImport allowlist"]
         Sim["Chaos Sandbox\nDocker Compose"]
