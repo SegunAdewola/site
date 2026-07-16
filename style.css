@@ -122,10 +122,6 @@ strong, .highlight-token {
   color: var(--color-accent);
 }
 
-.resume-link {
-  color: var(--color-accent) !important;
-}
-
 /* ==========================================================================
    Content Grid & Headings
    ========================================================================== */
@@ -239,6 +235,105 @@ code[class*="language-"] {
   font-size: 0.9rem !important;
   text-shadow: none !important;
 }
+
+/* ==========================================================================
+   Mermaid Color Tokens (single source of truth for diagram colors)
+   ========================================================================== */
+:root {
+  --mermaid-bg: #FFFFFF;
+  --mermaid-node-fill: #FFFFFF;
+  --mermaid-node-text: #24292F;
+  --mermaid-border: #D0D7DE;
+  --mermaid-line: #226db8;
+  --mermaid-cluster-bg: #F6F8FA;
+  --mermaid-cluster-border: #D0D7DE;
+  --mermaid-title: #24292F;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mermaid-bg: #0E1117;
+    --mermaid-node-fill: #010409;
+    --mermaid-node-text: #f0f6fc;
+    --mermaid-border: #484F58;
+    --mermaid-line: #85b7e8;
+    --mermaid-cluster-bg: #161B22;
+    --mermaid-cluster-border: #484F58;
+    --mermaid-title: #f0f6fc;
+  }
+}
+
+/* ==========================================================================
+   Mermaid Diagram Container
+   ========================================================================== */
+.mermaid {
+  background-color: var(--mermaid-bg);
+  border: 1px solid var(--mermaid-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+  margin: 1.25rem 0;
+  overflow-x: auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  .mermaid {
+    background-color: var(--mermaid-bg);
+    border-color: var(--mermaid-border);
+  }
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Rounded node and cluster corners */
+.mermaid svg .node rect,
+.mermaid svg .cluster rect {
+  rx: 6px;
+}
+
+/* Edge label text */
+.mermaid .edgeLabel,
+.mermaid .edgeLabel p,
+.mermaid .edgeLabel span {
+  background-color: transparent !important;
+  color: var(--mermaid-node-text) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .mermaid .edgeLabel,
+  .mermaid .edgeLabel p,
+  .mermaid .edgeLabel span {
+    color: var(--mermaid-node-text) !important;
+  }
+}
+
+/* Active node highlight */
+.mermaid .active > rect,
+.mermaid .active > polygon,
+.mermaid .active > circle,
+.mermaid .active > ellipse {
+  stroke: var(--mermaid-line) !important;
+  stroke-width: 2px !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .mermaid .active > rect,
+  .mermaid .active > polygon,
+  .mermaid .active > circle,
+  .mermaid .active > ellipse {
+    stroke: var(--mermaid-line) !important;
+    stroke-width: 2px !important;
+  }
+}
+
+/* Article header: used on all project architecture pages */
+.article-heading { margin-top: 1rem; }
+.article-meta { opacity: 0.7; font-size: 0.95rem; margin-bottom: 0.25rem; }
+.article-links { margin-bottom: 1.75rem; }
 
 /* ==========================================================================
    Footer Component Shell

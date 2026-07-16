@@ -22,7 +22,8 @@ Avoid:
 - All styles live in `style.css`. Do not add inline styles or `<style>` blocks unless explicitly asked.
 - Do not add new CSS classes without asking first. The existing class set covers most needs.
 - Pages inside `blog/` and `projects/` use `../style.css` and `../assets/js/main.js`. Root pages use `style.css` and `assets/js/main.js`.
-- The Google Fonts import loads only Inter. Do not add other font families without asking.
+- The site font is Pretendard, injected dynamically by `main.js` from the jsDelivr CDN. Do not add other font families without asking.
+- Mermaid (diagrams) and Prism (code highlighting) are the two approved JS libraries. Both are loaded dynamically by `main.js` only on pages that need them. Do not add other libraries without asking.
 
 ## Key files
 

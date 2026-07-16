@@ -13,106 +13,331 @@
   <main class="main-content">
     <article>
       <a href="../projects.html" class="text-link">&larr; Back to Projects</a>
-      <h1 style="margin-top: 1rem;">RemitTrack</h1>
-      <p style="opacity: 0.7; font-size: 0.95rem; margin-bottom: 0.25rem;">Exchange Rate Comparison Platform &bull; Jun. 2025 &ndash; Ongoing</p>
-      <p style="margin-bottom: 1.75rem;">
+      <h1 class="article-heading">RemitTrack</h1>
+      <p class="article-meta">Exchange Rate Comparison Platform &bull; Jun. 2025 &ndash; Ongoing</p>
+      <p class="article-links">
         <a href="https://www.remittrack.com" class="text-link" target="_blank" rel="noopener">remittrack.com</a>
         &nbsp;&bull;&nbsp;
-        <a href="https://github.com/SegunAdewola" class="text-link" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/SegunAdewola/remit-track" class="text-link" target="_blank" rel="noopener">GitHub</a>
       </p>
 
       <ul class="doc-vertical-nav">
         <li><a href="#overview" class="text-link">1. Overview</a></li>
         <li><a href="#architecture" class="text-link">2. System Architecture</a></li>
-        <li><a href="#data-pipeline" class="text-link">3. Data Pipeline</a></li>
-        <li><a href="#features" class="text-link">4. Key Features</a></li>
-        <li><a href="#tradeoffs" class="text-link">5. Engineering Trade-offs</a></li>
+        <li><a href="#frontend" class="text-link">3. Frontend and Edge Caching</a></li>
+        <li><a href="#backend" class="text-link">4. Backend and Alert Engine</a></li>
+        <li><a href="#extraction" class="text-link">5. Extraction Pipeline</a></li>
+        <li><a href="#agents" class="text-link">6. Agentic Pipeline</a></li>
+        <li><a href="#cicd" class="text-link">7. CI/CD and DevOps</a></li>
+        <li><a href="#tradeoffs" class="text-link">8. Engineering Trade-offs</a></li>
       </ul>
 
       <section id="overview" class="page-section">
         <h3>1. Overview</h3>
-        <p>RemitTrack is a real-time exchange rate comparison platform built for the African diaspora. Sending money home is something millions of people do every month, and the difference in rates across providers can be significant. RemitTrack pulls live rates from 15+ Money Transfer Providers, normalises them into a consistent format, and surfaces them in one place so users can see where they get the best deal.</p>
-        <p>Beyond the consumer-facing side, the aggregated rate data serves as a market intelligence and arbitrage risk signal for MTP operators. The platform also has an LLM-powered chat interface that lets users ask questions about rates in plain English, built as an accessibility feature for users who find data tables harder to parse.</p>
+        <p>RemitTrack is a real-time exchange rate comparison platform for the African diaspora. The core problem is simple: if you send money home regularly, the difference in rates between providers adds up over time, and finding the best rate means visiting each provider separately. RemitTrack pulls live rates from 15+ Money Transfer Providers, normalises them into a consistent format, and surfaces them in one place.</p>
+        <p>The platform serves two audiences. Consumers use it to find the best rate before sending. Money Transfer Providers (MTPs) use the aggregated rate data as a market intelligence and arbitrage risk signal across the corridor. There is also an LLM-powered chat interface for users who find data tables harder to navigate.</p>
+        <p>The architecture is split into clean, decoupled tiers: a Next.js frontend served from CloudFront edge nodes, a Go modulith on a single EC2 host, a serverless Lambda extraction cluster, and an agentic pipeline running on ephemeral GitHub Actions runners that keeps the scrapers healthy without manual intervention.</p>
       </section>
 
       <section id="architecture" class="page-section">
         <h3>2. System Architecture</h3>
-        <p>The platform is a fully Go data platform deployed on AWS. The backend handles all scraping, normalisation, storage, and serving. The frontend is a TypeScript and React application that reads from the API.</p>
+        <p>The global topology isolates real-time data ingestion, public presentation caching, core business logic, and the agentic self-healing pipeline into distinct tiers. The feedback loop from the agentic pipeline back to the extraction cluster is intentional: when a merged patch activates a repaired scraper, it re-enters the EventBridge schedule and starts producing data again.</p>
 
-        <div class="system-diagram">
-          <div class="diagram-node">
-            <div class="node-title">ETL Scrapers</div>
-            <div class="node-meta">Go goroutines</div>
-          </div>
-          <div class="diagram-arrow">&rarr;</div>
-          <div class="diagram-node active-node">
-            <div class="node-title">Kinesis Stream</div>
-            <div class="node-meta">AWS Kinesis</div>
-          </div>
-          <div class="diagram-arrow">&rarr;</div>
-          <div class="diagram-node">
-            <div class="node-title">Consumer</div>
-            <div class="node-meta">Normalise + Persist</div>
-          </div>
-          <div class="diagram-arrow">&rarr;</div>
-          <div class="diagram-node">
-            <div class="node-title">PostgreSQL</div>
-            <div class="node-meta">AWS RDS</div>
-          </div>
+        <div class="mermaid">
+flowchart TD
+    classDef active stroke-width:2px
+
+    subgraph Edge["Edge Layer"]
+        CFpub["CloudFront Public\nWAF + static page delivery"]
+        CFb2b["CloudFront B2B\nToken-gated /v1/b2b/*"]
+    end
+
+    subgraph Host["EC2 t4g.micro"]
+        NGINX["NGINX\nBlue/Green :8080/:8081"]
+        Mod["Go Modulith\nAPI, Chat, Alerts, B2B"]
+        NGINX --> Mod
+    end
+
+    subgraph Extract["Extraction Cluster"]
+        EB["EventBridge\nevery 5 min"]
+        L["Lambda Scrapers\nutls + Residential Proxies"]
+        SQS["AWS SQS\nIngestion Queue"]
+        EB --> L --> SQS
+    end
+
+    subgraph Store["Storage"]
+        RDS["RDS PostgreSQL\nMulti-AZ, PITR"]
+        Cache["RateCache\nsync.Map or ElastiCache"]
+    end
+
+    subgraph Pipe["Agentic Pipeline\nGitHub Actions Runners"]
+        AG["Multi-Agent Core\nLangGraph + ChromaDB RAG"]
+        Guard["AST Safety Gate\nImport allowlist"]
+        Sim["Chaos Sandbox\nDocker Compose"]
+        Canary["Statistical Canary\n3-sigma + regression corpus"]
+        AG --> Guard --> Sim --> Canary
+    end
+
+    CW["CloudWatch\nScraper error alerts"]
+
+    CFpub --> NGINX
+    CFb2b --> NGINX
+    SQS -->|long-poll| Mod
+    Mod --> Cache
+    Cache --> RDS
+    RDS -->|app telemetry| CW
+    CW -->|repository dispatch webhook| AG
+    Canary -->|on merge approval| EB
+
+    class Mod active
         </div>
-
-        <div class="system-diagram">
-          <div class="diagram-node">
-            <div class="node-title">React Frontend</div>
-            <div class="node-meta">TypeScript / React</div>
-          </div>
-          <div class="diagram-arrow">&rarr;</div>
-          <div class="diagram-node active-node">
-            <div class="node-title">REST API</div>
-            <div class="node-meta">Go HTTP Server</div>
-          </div>
-          <div class="diagram-arrow">&rarr;</div>
-          <div class="diagram-node">
-            <div class="node-title">ElastiCache</div>
-            <div class="node-meta">Redis Cache</div>
-          </div>
-          <div class="diagram-arrow">&rarr;</div>
-          <div class="diagram-node">
-            <div class="node-title">PostgreSQL</div>
-            <div class="node-meta">AWS RDS</div>
-          </div>
-        </div>
-
-        <p>Infrastructure runs on AWS EC2 with RDS for PostgreSQL, ElastiCache for Redis, and Kinesis for the streaming ingestion layer.</p>
       </section>
 
-      <section id="data-pipeline" class="page-section">
-        <h3>3. Data Pipeline</h3>
-        <p>The core engineering challenge in RemitTrack is getting fresh, accurate rate data from providers that do not offer a public API. The ETL pipeline handles this in three stages:</p>
-        <ul>
-          <li><strong>Extract:</strong> goroutine-based concurrent scrapers run on a schedule, one per provider, pulling rates in parallel. This keeps the total scrape time close to the slowest single provider rather than the sum of all of them.</li>
-          <li><strong>Transform:</strong> each scraper outputs a normalised rate record with a consistent schema regardless of how the source structures its data. Currency pair, mid-rate, provider timestamp, and scrape timestamp are all captured.</li>
-          <li><strong>Load:</strong> normalised records are published to a Kinesis stream. A downstream consumer reads from the stream, applies any final validation, and writes to PostgreSQL. Kinesis decouples the scraping layer from the storage layer, so a slow write to RDS does not back up the scrapers.</li>
-        </ul>
-        <p>ElastiCache sits in front of the API layer and caches the latest rate per provider per currency pair. Most read traffic hits the cache. The database is the source of truth for historical data and alert evaluation.</p>
+      <section id="frontend" class="page-section">
+        <h3>3. Frontend and Edge Caching</h3>
+        <p>The frontend is a Next.js application that compiles to flat, static HTML and JSON files. Those files are hosted in S3 and served via CloudFront. For most requests, CloudFront resolves the page directly from edge cache with no compute running on the origin server at all.</p>
+        <p>When the ingestion pipeline finishes a scrape cycle, it fires an authenticated webhook that triggers an ISR rebuild. The order here matters: the build job writes updated files to S3 first, then calls the CloudFront Invalidation API. Invalidation alone never regenerates anything, it only purges. Regenerating the origin first ensures the next request fetches fresh output rather than stale cache. Only the changed corridor pages are rebuilt, so a page like <code>/exchange-rates/gbp-to-ngn</code> stays current every five minutes without a full site rebuild.</p>
+
+        <div class="mermaid">
+flowchart TD
+    classDef active stroke-width:2px
+
+    Bot["Web Crawler / User"]
+    CF["CloudFront Edge\nCache + WAF"]
+    Hit["Serve pre-rendered page\n0 host compute"]
+    S3["S3 Static Bucket\nFlat HTML + JSON"]
+    ISR["ISR Trigger\nScoped rebuild job"]
+    Ingest["Ingestion Pipeline\nfinishes scrape cycle"]
+    CI["CI/CD Build\nNext.js static export"]
+
+    Bot -->|request| CF
+    CF -->|cache hit| Hit
+    CF -->|cache miss| S3
+    Ingest -->|fires authenticated webhook| ISR
+    ISR -->|1. writes updated files| S3
+    ISR -->|2. calls invalidation API| CF
+    CI -->|pushes flat HTML + JSON| S3
+
+    class CF active
+        </div>
+
+        <p>Static pages inject rate data as JSON-LD schemas: <code>ExchangeRateSpecification</code> for table rows and <code>FAQPage</code> for conversational queries. This gives web crawlers that skip client-side JavaScript pre-rendered, structured data without a live render server. The site also handles multiple locales through Next.js directory routing (<code>/app/[locale]/exchange-rates/[corridor]/page.tsx</code>), with canonical and hreflang tags generated at build time.</p>
       </section>
 
-      <section id="features" class="page-section">
-        <h3>4. Key Features</h3>
+      <section id="backend" class="page-section">
+        <h3>4. Backend and Alert Engine</h3>
+        <p>The Go modulith runs on an EC2 t4g.micro under systemd. NGINX sits in front of it and handles ingress, configured with two upstream ports (8080 and 8081) for zero-downtime deployments. When a new binary ships, it starts on the idle port, NGINX rewrites its upstream block and reloads, and in-flight requests on the old port drain gracefully before that process stops.</p>
+
+        <div class="mermaid">
+flowchart TD
+    classDef active stroke-width:2px
+
+    SQS["AWS SQS"]
+    Ing["Ingestion Consumer\nlong-poll, batch insert"]
+    Alert["Alert Pool\nbackground goroutines"]
+    Map["In-Memory Corridor Index\nmap[corridor][]AlertConfig"]
+    SES["AWS SES\nEmail Notification"]
+    RDS["RDS PostgreSQL"]
+
+    SQS --> Ing
+    Ing -->|dispatch| Alert
+    Alert --> Map
+    Map -->|threshold matched| SES
+    Ing --> RDS
+
+    class Alert active
+        </div>
+
+        <p>Alert processing runs entirely in memory. When a scrape batch lands, a pool of background goroutines checks the new rates against an index keyed by currency corridor, such as <code>USD:GHS</code>. If a user's price target is hit, the goroutine dispatches an email via AWS SES. Running this in memory keeps latency near zero and avoids a round-trip to Redis for every alert check.</p>
+        <p>B2B consumers access rates through a separate token-gated endpoint (<code>/api/v1/b2b/rates/latest</code>). Requests go through Go middleware that validates an <code>x-api-key</code> header against hashed records in PostgreSQL, with rate limiting via a token-bucket algorithm held in instance memory.</p>
+        <p>Stripe billing webhooks go through signature verification and an idempotency check: the <code>evt_id</code> is hashed against a ledger table in PostgreSQL, so network retries never result in duplicate charges. A periodic reconciliation job re-reads Stripe subscription status and corrects any drift from missed webhooks.</p>
+        <p>The modulith also hosts an LLM chat package that answers plain-English rate questions, routing context to the configured model and streaming responses through worker goroutines. Its anonymised conversation logs feed the FAQ mining engine that publishes <code>FAQPage</code> schemas for long-tail search capture.</p>
+      </section>
+
+      <section id="extraction" class="page-section">
+        <h3>5. Extraction Pipeline</h3>
+        <p>Scraping runs outside the core server entirely. Each Money Transfer Provider has a dedicated Lambda function written in Go, triggered on a five-minute EventBridge cron. The Lambda normalises the scraped rate into a unified JSON record, pushes it to SQS, and exits. The modulith long-polls the queue and writes records to RDS in batches.</p>
+
+        <div class="mermaid">
+flowchart TD
+    classDef active stroke-width:2px
+
+    EB["EventBridge Cron\nevery 5 min"]
+    L["Lambda Scraper\none per provider"]
+    Proxy["Residential Proxy\nutls fingerprint"]
+    MTP["Money Transfer Provider"]
+    SQS["AWS SQS\nnormalised RateRecord"]
+    Proc["Modulith Consumer\nbatch insert"]
+    RDS["RDS PostgreSQL"]
+
+    EB --> L
+    L -->|utls fingerprint| Proxy
+    Proxy --> MTP
+    MTP --> L
+    L -->|normalised RateRecord| SQS
+    SQS -->|long-poll| Proc
+    Proc --> RDS
+
+    class L active
+        </div>
+
+        <p>Each provider entry in <code>provider_map.json</code> declares an ingestion strategy. The Lambda calls the provider's official partner API when one exists, and only falls back to browser-emulating scraping when no compliant API is available. API-first ingestion is more reliable and reduces how often the self-healing pipeline needs to fire.</p>
+        <p>For providers without a compliant API, the Lambda uses the <code>utls</code> library to emulate a standard browser TLS handshake rather than Go's default fingerprint. Outbound connections route through a rotating residential proxy service so requests appear to come from real user IPs rather than AWS data centre ranges. This defeats JA4 TLS fingerprinting checks used by Cloudflare and similar systems.</p>
+        <p>The database write uses an <code>ON CONFLICT DO NOTHING</code> insert, so duplicate SQS deliveries are silently discarded.</p>
+
+        <pre><code class="language-sql">INSERT INTO historical_rates (provider, currency_pair, mid_rate, scrape_timestamp)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (provider, currency_pair, scrape_timestamp) DO NOTHING;</code></pre>
+
+        <p>Two tables handle the rate data. <code>historical_rates</code> stores every scrape for trend analysis and alert evaluation. <code>current_rates</code> holds one row per provider and currency pair, updated on each insert. All hot user queries read from <code>current_rates</code>, so the growing history table is never scanned on a live request.</p>
+        <p>The RDS instance runs Multi-AZ active-passive replication with Point-In-Time Recovery. All infrastructure is managed through Terraform with a <code>prevent_destroy = true</code> lifecycle guard on stateful resources, and production applies require manual approval.</p>
+      </section>
+
+      <section id="agents" class="page-section">
+        <h3>6. Agentic Pipeline</h3>
+        <p>Provider APIs and page structures change without notice. For a rates comparison platform, the worst failure mode is silent: a wrong number looks exactly like a right one. The agentic pipeline is the mechanism that keeps data accurate long-term without someone manually monitoring every provider. Every resolved failure strengthens the system: it gets recorded in the failure registry, turned into a replay test, and added to the regression corpus. The next time a similar break happens, the fix is faster and the regression is permanently guarded against.</p>
+        <p>Three agents run on ephemeral GitHub Actions runners, each triggered independently.</p>
+
+        <div class="mermaid">
+flowchart TD
+    classDef active stroke-width:2px
+
+    CW["CloudWatch Alert\nor Manual Trigger"]
+    VM["GitHub Actions Runner\nephemeral"]
+    Heal["Self-Healing Agent\nPulls code, queries ChromaDB RAG\nprompts LLM for patch"]
+    Comply["Compliance Sentinel\nCrawls robots.txt and ToS\nLLM policy evaluation"]
+    Onboard["Onboarding Agent\nplaywright-stealth browser\nXHR sniffing, Lambda generation"]
+    PR["Opens PR\nfor human review"]
+
+    CW -->|repository dispatch| VM
+    VM --> Heal
+    VM --> Comply
+    VM --> Onboard
+    Heal --> PR
+    Comply --> PR
+    Onboard --> PR
+
+    class VM active
+        </div>
+
+        <h4>The Trust Boundary</h4>
+        <p>No single failure or injected instruction can reach production. Every candidate patch climbs a sequential ladder of independent gates, each of which can only reject. The blast radius of any compromised input is a rejected pull request, not a production change.</p>
+
+        <div class="mermaid">
+flowchart TD
+    classDef active stroke-width:2px
+
+    Patch["LLM-Generated Patch"]
+    Scope["Scope Check\nJSON field-mapping only\nHTML DOM changes escalate to human"]
+    AST["AST Allowlist Gate\ngo/parser import check\ngo:linkname rejection"]
+    Chaos["Chaos Sandbox\nDocker Compose mock network\nnever touches production"]
+    Canary["Statistical Canary\n3-sigma window\ncross-provider variance check"]
+    Corpus["Regression Corpus\nfailure_registry.json replay\nall historical cases must pass"]
+    PR["Human PR Review\nmandatory merge gate"]
+    Escalate["Escalate to Human\nno auto-retry after 3 attempts"]
+
+    Patch --> Scope
+    Scope -->|in scope| AST
+    Scope -->|out of scope| Escalate
+    AST -->|passes| Chaos
+    AST -->|forbidden import| Escalate
+    Chaos -->|passes| Canary
+    Canary -->|within window| Corpus
+    Canary -->|outlier| Escalate
+    Corpus -->|all green| PR
+    Corpus -->|regression found| Escalate
+
+    class Chaos active
+        </div>
+
         <ul>
-          <li><strong>Rate comparison table:</strong> live rates across 15+ providers, updated on every scrape cycle.</li>
-          <li><strong>Price-target alerts:</strong> users set a target rate for a currency pair and get notified when a provider hits it.</li>
-          <li><strong>LLM chat interface:</strong> a natural-language interface that lets users query the rate data conversationally. Built as an accessibility feature for users who find tables harder to navigate.</li>
-          <li><strong>Market intelligence view:</strong> aggregated rate data surfaces spread patterns and arbitrage signals across providers.</li>
+          <li><strong>Scope check:</strong> the agent may only edit JSON field-mapping transformers. If the problem is a broken HTML DOM structure, it stops immediately and alerts a human engineer. That class of change is always out of bounds.</li>
+          <li><strong>AST allowlist gate:</strong> the generated Go is parsed by Go's own <code>go/parser</code>. Only four pure data-mapping packages are permitted: <code>strings</code>, <code>strconv</code>, <code>encoding/json</code>, and <code>errors</code>. Anything else, including <code>net/http</code> or <code>//go:linkname</code> compiler directives, is discarded before the code ever compiles.</li>
+          <li><strong>Chaos sandbox:</strong> the patched scraper runs inside an isolated Docker Compose mock-provider network. It never touches production at this stage. The chaos environment can serve any historical payload shape on demand, including broken ones, so the full scope of known failures can be validated offline.</li>
+          <li><strong>Statistical canary:</strong> the rate produced by the patched scraper must fall within three standard deviations of the historical mean for that corridor, and must align with a cross-provider variance check. For a brand-new corridor with no history, the check is skipped and the candidate is held for mandatory human review rather than auto-passed.</li>
+          <li><strong>Regression corpus:</strong> the patch must keep every historical failure case in <code>failure_registry.json</code> green. No candidate merges unless the entire failure history replays cleanly.</li>
+          <li><strong>Human PR:</strong> nothing merges without a human reviewing and approving the pull request. The agent can only propose; it cannot ship.</li>
         </ul>
+
+        <p>The agent attempts at most three repair loops per failure. If no candidate clears every gate within three attempts, it stops and escalates to a human rather than looping indefinitely.</p>
+
+        <pre><code class="language-go">func VerifyASTSafety(goSource string) error {
+    if strings.Contains(goSource, "//go:linkname") {
+        return errors.New("security alert: //go:linkname directive is not permitted")
+    }
+    fset := token.NewFileSet()
+    file, err := parser.ParseFile(fset, "patch.go", goSource, parser.ImportsOnly)
+    if err != nil {
+        return fmt.Errorf("patch rejected: unparseable Go source: %w", err)
+    }
+    for _, imp := range file.Imports {
+        path, _ := strconv.Unquote(imp.Path.Value)
+        if !allowedImports[path] {
+            return fmt.Errorf("security alert: forbidden import %q", path)
+        }
+    }
+    return nil
+}</code></pre>
+
+        <h4>The Three Agents</h4>
+        <p><strong>Self-Healing Agent:</strong> when CloudWatch detects a scraper crash or empty payload, it fires a repository dispatch webhook into GitHub Actions. The runner downloads the ChromaDB vector store archive from S3, initialises a local session, and runs a semantic search to retrieve the top matches for similar past failures and their successful fixes. An LLM generates a repair patch, which then climbs the full validation ladder above before a PR is opened.</p>
+        <p><strong>Compliance Sentinel:</strong> runs daily. Downloads the <code>robots.txt</code> and Terms of Service for every monitored provider, checksums them against yesterday's snapshot stored in S3, and runs an LLM evaluation if anything changed. If the updated terms restrict scraping, the agent opens a PR to deactivate that provider in <code>provider_map.json</code>.</p>
+        <p><strong>Onboarding Agent:</strong> triggered via <code>make onboard URL=...</code>. Compliance rules are checked first. If the target is compliant, the agent launches a headless browser using <code>playwright-stealth</code>, listens to background network traffic for 45 seconds, and if it finds rate data in a JSON response, generates a new Go Lambda scraper and opens a PR.</p>
+
+        <h4>Build Order</h4>
+        <p>Because the gates are what make autonomous changes safe, they have to be in place before the code generator exists. The correct build sequence is: observability first (CloudWatch, metric filters, the dispatch webhook), then the failure registry and chaos sandbox, then the standalone gates (AST linter, statistical canary), then the self-healing generator, then the Compliance Sentinel, and finally the Onboarding Agent last since it generates entirely new scrapers and carries the highest blast radius. Guardrails and corpus come before code generation, not after.</p>
+      </section>
+
+      <section id="cicd" class="page-section">
+        <h3>7. CI/CD and DevOps</h3>
+        <p>The platform uses a GitOps model. Everything that touches the cloud is managed through Terraform in <code>/infra/terraform/</code>. When a change merges, GitHub Actions boots an ephemeral Ubuntu runner and executes two parallel tracks.</p>
+
+        <div class="mermaid">
+flowchart TD
+    classDef active stroke-width:2px
+
+    Push["Code Push or Merge"]
+    Runner["GitHub Actions Runner\nephemeral Ubuntu"]
+
+    subgraph Validate["Validation Track"]
+        V1["Go linter and unit tests\ngo test -v ./..."]
+        V2["Docker Compose Chaos Sandbox\nfull regression corpus replay"]
+        V3["Cross-compile Lambda binaries\nand zip packages"]
+        V1 --> V2 --> V3
+    end
+
+    subgraph Infra["Infrastructure Track"]
+        I1["terraform init"]
+        I2["terraform plan\nposted to PR for human review"]
+        I3["terraform apply\nafter manual approval only"]
+        I1 --> I2 --> I3
+    end
+
+    Deploy["Production Rolling Swap\nSSH to EC2, NGINX reload\nzero-downtime binary swap"]
+
+    Push --> Runner
+    Runner --> V1
+    Runner --> I1
+    V3 --> Deploy
+    I3 --> Deploy
+
+    class Deploy active
+        </div>
+
+        <p>The validation track runs the full test suite, boots the Docker Compose chaos environment and replays the entire failure registry corpus, then cross-compiles the Go modulith binary and Lambda zip packages. The infrastructure track runs <code>terraform plan</code>, posts the plan output to the PR for human review, and only applies after manual approval on the protected production environment.</p>
+        <p>If both tracks pass, the runner ships the compiled artifacts to AWS via CLI, SSHes into the EC2 host, and executes the zero-downtime binary swap: the new binary starts on the idle NGINX upstream port, NGINX reloads its config, and in-flight requests on the old port drain before the old process stops.</p>
+        <p>Stateful resources, the RDS instance above all, carry a <code>prevent_destroy = true</code> Terraform lifecycle guard so a bad plan can never replace or delete them. The chaos regression replay running in the validation track means no deployment can ship a change that breaks historical scraper behaviour.</p>
       </section>
 
       <section id="tradeoffs" class="page-section">
-        <h3>5. Engineering Trade-offs</h3>
+        <h3>8. Engineering Trade-offs</h3>
         <ul>
-          <li><strong>Kinesis over Kafka:</strong> MSK has a minimum cost of two brokers regardless of load. At this scale, one Kinesis shard handles the throughput at a fraction of the cost. The trade-off is a 7-day maximum retention window vs Kafka's configurable retention, which is acceptable for this use case.</li>
-          <li><strong>PostgreSQL over a document store:</strong> rate data is relational and time-series friendly. PostgreSQL's window functions handle spread analysis and trend queries cleanly. A document store would have made these queries significantly more awkward.</li>
-          <li><strong>Go modulith over microservices:</strong> splitting the scraping layer, API layer, and alert worker into separate services would add deployment and networking overhead that is not justified at this stage. The modulith keeps operational costs low while the codebase stays structured enough to split later if needed.</li>
+          <li><strong>Lambda over scraping on the host:</strong> decouples extraction from the application server and prevents connection exhaustion on the EC2 instance. Lambda cold starts on a 5-minute schedule are not a concern. The trade-off is more moving parts and cross-service IAM configuration to manage.</li>
+          <li><strong>In-memory alert cache over Redis:</strong> zero cost, near-zero latency, no network hop. The trade-off is that alert state is tied to a single host. Moving to multi-node horizontal scaling would require migrating the alert pool to ElastiCache. The <code>REMITTRACK_INFRA_PROFILE</code> environment variable is the planned switch: LEAN keeps the single EC2 modulith, ENTERPRISE repoints CloudFront to an Application Load Balancer fronting ECS Fargate containers.</li>
+          <li><strong>Standard SQS over FIFO:</strong> removes throughput caps and simplifies scaling. Idempotent SQL constraints handle out-of-order and duplicate deliveries at the database level, so strict queue ordering is not needed.</li>
+          <li><strong>CloudFront edge caching over live SSR:</strong> eliminates almost all host compute for read traffic. The trade-off is losing real-time per-user personalisation based on request headers. If true per-user rendering becomes necessary, that is the point to introduce SSR or a Lambda@Edge render tier.</li>
+          <li><strong>Strict AST scope gate over broader agent autonomy:</strong> restricting the self-healing agent to JSON field-mapping changes means it cannot fix structural HTML changes on legacy platforms. But it materially reduces the attack surface against compiler bypass vectors and resource-exhaustion loops. The blast radius of any compromised input remains a rejected PR.</li>
+          <li><strong>GitHub Actions runners over dedicated testing infrastructure:</strong> offloading chaos testing and compilation to GitHub Actions introduces queue latency compared to a dedicated cloud container node. However, it eliminates recurring testing infrastructure costs and keeps operational overhead at zero.</li>
         </ul>
       </section>
 

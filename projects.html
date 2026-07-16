@@ -25,15 +25,31 @@
           <a href="https://www.remittrack.com" class="text-link" target="_blank" rel="noopener">App</a>
           <a href="projects/remittrack.html" class="text-link">Architecture &amp; Design</a>
         </div>
-        <p>A real-time exchange rate comparison platform for the African diaspora. Covers 15+ Money Transfer Providers, sends price-target alerts, and has an LLM-powered chat interface for natural-language rate queries as an accessibility feature. The aggregated rate data also serves as a market intelligence and arbitrage risk signal for MTP operators.</p>
+        <p>A real-time exchange rate comparison platform for the African diaspora covering 15+ Money Transfer Providers. The extraction layer is a serverless Lambda cluster that emulates browser TLS fingerprints to bypass bot detection, pushing normalised rate records to SQS for idempotent ingestion into PostgreSQL. A Go modulith handles the backend, with a LangGraph multi-agent pipeline that self-heals broken scrapers using RAG, validates every AI-generated fix through a chaos testing environment and AST safety linter, and opens a pull request for review. The aggregated rate data also serves as a market intelligence and arbitrage risk signal for Money Transfer Providers (MTPs).</p>
         <div class="item-tags">
           <span class="tag">Go</span>
-          <span class="tag">TypeScript</span>
-          <span class="tag">React</span>
+          <span class="tag">Python</span>
+          <span class="tag">Next.js</span>
           <span class="tag">PostgreSQL</span>
-          <span class="tag">Kinesis</span>
+          <span class="tag">RDS</span>
+          <span class="tag">S3</span>
+          <span class="tag">Lambda</span>
+          <span class="tag">EventBridge</span>
+          <span class="tag">SQS</span>
+          <span class="tag">SES</span>
+          <span class="tag">Redis</span>
           <span class="tag">ElastiCache</span>
+          <span class="tag">CloudFront</span>
+          <span class="tag">CloudWatch</span>
+          <span class="tag">WAF</span>
           <span class="tag">AWS</span>
+          <span class="tag">Docker</span>
+          <span class="tag">Terraform</span>
+          <span class="tag">Github Actions</span>
+          <span class="tag">NGINX</span>
+          <span class="tag">LangGraph</span>
+          <span class="tag">ChromaDB</span>
+          <span class="tag">Stripe</span>
         </div>
       </div>
 
