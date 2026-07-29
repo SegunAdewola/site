@@ -2,7 +2,8 @@ document.addEventListener("DOMContentLoaded", function() {
   // Inject font from a single place so all pages stay in sync
   const fontLink = document.createElement("link");
   fontLink.rel = "stylesheet";
-  fontLink.href = "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard-std/dist/web/variable/pretendardStdVariable.css";
+  // fontLink.href = "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard-std/dist/web/variable/pretendardStdVariable.css";
+  fontLink.href = "https://googleapis.com";
   document.head.appendChild(fontLink);
 
   const headerElement = document.getElementById("global-header");
@@ -74,7 +75,8 @@ document.addEventListener("DOMContentLoaded", function() {
         clusterBorder: cssVar('--mermaid-cluster-border'),
         edgeLabelBackground: 'transparent',
         titleColor: cssVar('--mermaid-title'),
-        fontFamily: 'PretendardStd Variable, sans-serif',
+        // fontFamily: 'PretendardStd Variable, sans-serif',
+        fontFamily: 'Space Grotesk, sans-serif',
         fontSize: '13px'
       });
 
