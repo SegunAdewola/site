@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function() {
   if (headerElement) {
     headerElement.innerHTML = `
       <div class="nav-container">
-        <a href="${prefix}index.html" class="nav-logo">Oluwasegun<span> Adewola</span></a>
+        <a href="${prefix}index.html" class="nav-logo">Segun<span> Adewola</span></a>
         <nav class="nav-links">
           <a href="${prefix}projects.html" class="${isProjectsActive ? 'active' : ''}">Projects</a>
           <!--<a href="${prefix}blog.html" class="${isBlogActive ? 'active' : ''}">Blog</a>-->
